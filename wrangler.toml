@@ -1,0 +1,8 @@
+name = "honoratorainbows"
+main = "src/index.ts"
+compatibility_date = "2026-03-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "honoratorainbows_db"
+database_id = "12af607d-067d-4152-bab4-accc6164d97b"

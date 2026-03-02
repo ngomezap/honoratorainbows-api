@@ -8,10 +8,11 @@ type Poem = {
   slug: string
   title: string
   body: string
+  type: "poem" | "quote"
   created_at: string
 }
 
-type PoemPayload = Partial<Pick<Poem, "slug" | "title" | "body">>
+type PoemPayload = Partial<Pick<Poem, "slug" | "title" | "body" | "type">>
 
 function json<T>(data: T, init: ResponseInit = {}) {
   return new Response(JSON.stringify(data), {
@@ -39,6 +40,7 @@ export default {
       const slug = payload.slug?.trim()
       const title = payload.title?.trim()
       const body = payload.body?.trim()
+      const type = payload.type === "quote" ? "quote" : "poem"
 
       if (!slug || !title || !body) {
         return json(
@@ -50,9 +52,9 @@ export default {
       try {
         await env.DB
           .prepare(
-            "INSERT INTO poems (slug, title, body, created_at) VALUES (?, ?, ?, datetime('now'))",
+            "INSERT INTO poems (slug, title, body, type, created_at) VALUES (?, ?, ?, ?, datetime('now'))",
           )
-          .bind(slug, title, body)
+          .bind(slug, title, body, type)
           .run()
       } catch {
         return json({ error: "Could not insert poem" }, { status: 500 })
@@ -81,6 +83,7 @@ export default {
       const slug = payload.slug?.trim() || targetSlug
       const title = payload.title?.trim()
       const body = payload.body?.trim()
+      const type = payload.type === "quote" ? "quote" : "poem"
 
       if (!slug || !title || !body) {
         return json(
@@ -100,8 +103,8 @@ export default {
 
       try {
         await env.DB
-          .prepare("UPDATE poems SET slug = ?, title = ?, body = ? WHERE slug = ?")
-          .bind(slug, title, body, targetSlug)
+          .prepare("UPDATE poems SET slug = ?, title = ?, body = ?, type = ? WHERE slug = ?")
+          .bind(slug, title, body, type, targetSlug)
           .run()
       } catch {
         return json({ error: "Could not update poem" }, { status: 500 })
